@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Confession extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'message',
+        'guest_token',
+        'ip_address'
+    ];
+
+    // Relasi: Pesan ini milik satu User
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    // Relasi: Pesan ini punya banyak Chat (balasan)
+    public function chats()
+    {
+        return $this->hasMany(Chat::class);
+    }
+}
