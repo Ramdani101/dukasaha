@@ -68,8 +68,8 @@
 
                 <div class="mb-6 ml-1 flex justify-between items-center">
                     <span class="text-xs text-gray-500">
-                        Lupa Password? 
-                        <a href="#" class="font-bold text-[#DD0303] hover:underline">Klik disini</a>
+                        Forgot your password? 
+                        <a href="{{route('password.request')}}" class="font-bold text-[#DD0303] hover:underline">Click here</a>
                     </span>
                 </div>
 

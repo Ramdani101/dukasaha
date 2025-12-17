@@ -6,13 +6,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ConfessionController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\AuthController; 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ForgotPasswordController; 
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
 
 // 1. Halaman Publik (Landing, About, Safety, term, privacy)
 Route::get('/', [PageController::class, 'index'])->name('landing');
@@ -51,12 +47,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/settings', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/settings', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/settings', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
 });
 
-// Load Auth Routes (Bawaan Breeze/Jetstream)
 
 
-// --- AUTH ROUTES (Manual) ---
+// --- AUTH ROUTES---
 
 // 1. Register
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
@@ -68,3 +64,11 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // 3. Logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Lupa Password
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+
+    // Reset Password (Link dari email mengarah kesini)
+Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
