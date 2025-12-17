@@ -14,10 +14,12 @@ use App\Http\Controllers\AuthController;
 |--------------------------------------------------------------------------
 */
 
-// 1. Halaman Publik (Landing, About, Safety)
+// 1. Halaman Publik (Landing, About, Safety, term, privacy)
 Route::get('/', [PageController::class, 'index'])->name('landing');
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/safety', [PageController::class, 'safety'])->name('safety');
+Route::get('/terms', [PageController::class, 'terms'])->name('terms');
+Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
 
 // 2. Akses Publik: Orang Lain Mengirim Pesan (Confess)
 // Link: dukasaha.com/u/username

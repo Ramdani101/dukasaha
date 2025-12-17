@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\ValidationException;
 use App\Models\User;
+
 
 class AuthController extends Controller
 {
@@ -44,19 +47,35 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        // 1. Validasi
-        $credentials = $request->validate([
+        // 1. Validasi Input Dasar
+        $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'g-recaptcha-response' => 'required' // Wajib diisi
+        ], [
+            'g-recaptcha-response.required' => 'Silakan centang "I am not a robot".'
         ]);
 
-        // 2. Coba Login
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->intended('home'); // Masuk ke Dashboard
+        // 2. Verifikasi ke Google Server
+        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => env('RECAPTCHA_SECRET_KEY'),
+            'response' => $request->input('g-recaptcha-response'),
+            'remoteip' => $request->ip(),
+        ]);
+
+        // Jika Google bilang Gagal
+        if (!$response->json()['success']) {
+            throw ValidationException::withMessages([
+                'g-recaptcha-response' => 'Verifikasi SPAM gagal, silakan coba lagi.',
+            ]);
         }
 
-        // 3. Jika Gagal
+        // 3. Lanjutkan Proses Login Biasa
+        if (Auth::attempt($request->only('email', 'password'))) {
+            $request->session()->regenerate();
+            return redirect()->intended('dashboard');
+        }
+
         return back()->withErrors([
             'email' => 'Email atau password salah.',
         ])->onlyInput('email');

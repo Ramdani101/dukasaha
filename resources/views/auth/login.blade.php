@@ -7,16 +7,11 @@
     @vite('resources/css/app.css')
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    
     <style>
         body { font-family: 'Poppins', sans-serif; }
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
-        
-        /* Pallete Color Variables */
-        /* Primary     : #FEF3E2 (Cream Background)
-           Secondary   : #FAB12F (Yellow/Orange)
-           Secondary 2 : #FA812F (Orange)
-           Secondary 3 : #DD0303 (Red)
-        */
     </style>
 </head>
 <body class="bg-[#FEF3E2] min-h-screen flex items-center justify-center p-1">
@@ -29,7 +24,7 @@
 
         <div class="bg-white border-2 border-[#FA812F] rounded-[30px] px-8 pb-8 pt-12 shadow-sm">
             
-            <h2 class="text-3xl font-montserrat font-bold text-center mb-8 bg-linear-to-r from-[#FA812F] to-[#DD0303] bg-clip-text text-transparent">
+            <h2 class="text-3xl font-montserrat font-bold text-center mb-8 bg-gradient-to-r from-[#FA812F] to-[#DD0303] bg-clip-text text-transparent">
                 Login
             </h2>
 
@@ -71,7 +66,7 @@
                            required>
                 </div>
 
-                <div class="mb-8 ml-1 flex justify-between items-center">
+                <div class="mb-6 ml-1 flex justify-between items-center">
                     <span class="text-xs text-gray-500">
                         Lupa Password? 
                         <a href="#" class="font-bold text-[#DD0303] hover:underline">Klik disini</a>
@@ -79,7 +74,11 @@
                 </div>
 
                 <div class="flex justify-center mb-6">
-                    <button type="submit" class="w-full sm:w-auto text-white font-montserrat font-bold py-3 px-12 rounded-full shadow-md transition duration-300 transform hover:scale-105 active:scale-95 bg-linear-to-r from-[#FAB12F] to-[#FA812F]">
+                    <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                </div>
+
+                <div class="flex justify-center mb-6">
+                    <button type="submit" class="w-full sm:w-auto text-white font-montserrat font-bold py-3 px-12 rounded-full shadow-md transition duration-300 transform hover:scale-105 active:scale-95 bg-gradient-to-r from-[#FAB12F] to-[#FA812F]">
                         Sign In
                     </button>
                 </div>
