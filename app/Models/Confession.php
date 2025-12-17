@@ -13,7 +13,8 @@ class Confession extends Model
         'user_id',
         'message',
         'guest_token',
-        'ip_address'
+        'ip_address',
+        'is_read',
     ];
 
     // Relasi: Pesan ini milik satu User

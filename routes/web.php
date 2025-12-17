@@ -32,6 +32,7 @@ Route::get('/reply/{token}', [ChatController::class, 'guestAccess'])->name('chat
 // Guest kirim balasan chat
 Route::post('/chat/guest/{token}', [ChatController::class, 'guestReply'])->name('chat.guest.reply');
 
+Route::get('/confessions/{id}', [ConfessionController::class, 'show'])->name('confessions.show');
 
 // 4. Area User (Harus Login)
 Route::middleware(['auth', 'verified'])->group(function () {

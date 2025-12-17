@@ -73,7 +73,7 @@ class AuthController extends Controller
         // 3. Lanjutkan Proses Login Biasa
         if (Auth::attempt($request->only('email', 'password'))) {
             $request->session()->regenerate();
-            return redirect()->intended('dashboard');
+            return redirect()->intended(route('dashboard'));
         }
 
         return back()->withErrors([

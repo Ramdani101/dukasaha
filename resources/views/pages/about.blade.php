@@ -33,7 +33,7 @@
 <body class="bg-[#FEF3E2] min-h-screen flex flex-col overflow-x-hidden fade-in-up">
 
     <header class="relative w-full">
-        <div class="bg-[#FAB12F] h-24 w-full curve-header absolute top-0 z-0"></div>
+        <div class="bg-gradient-to-r from-[#FA812F] to-[#DD0303] h-24 w-full curve-header absolute top-0 z-0"></div>
         
         <nav class="relative z-10 flex justify-center space-x-10 pt-4">
             
