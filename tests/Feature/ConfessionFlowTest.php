@@ -15,7 +15,6 @@ class ConfessionFlowTest extends TestCase
 
     /**
      * Setup: Matikan CSRF middleware agar test form lebih mudah.
-     * (Opsional, tapi membantu menghindari error 419 di test)
      */
     protected function setUp(): void
     {
@@ -24,38 +23,54 @@ class ConfessionFlowTest extends TestCase
     }
 
     /** @test */
-    public function guest_can_send_anonymous_confession()
+    public function test_guest_can_send_anonymous_confession_and_receive_token()
     {
-        // 1. Siapkan User Penerima
         $user = User::factory()->create(['username' => 'selebgram']);
 
-        // 2. Guest mengirim pesan (POST ke ConfessionController@store)
-        // Perhatikan: Controller kamu butuh 'username_target'
-        $response = $this->post(route('confess.store'), [
-            'username_target' => $user->username, //
-            'message' => 'Halo, ini pesan rahasia pertamaku!',
-            // 'g-recaptcha-response' => 'dummy-token' // Jika logic bypass di AuthController diterapkan disini juga
-        ]);
-
-        // 3. Cek Database Confessions
-        $this->assertDatabaseHas('confessions', [
-            'user_id' => $user->id,
+        // Simulate a guest request from a specific IP
+        $response = $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.5'])
+                         ->post(route('confess.store'), [
+            'username_target' => $user->username,
             'message' => 'Halo, ini pesan rahasia pertamaku!',
         ]);
 
-        // 4. Pastikan Redirect ke Halaman Chat Guest
-        // Controller kamu me-redirect ke route 'chat.guest'
-        $response->assertRedirect(); 
-        
-        // Cek apakah ada token yang digenerate
+        $response->assertRedirect();
+
         $confession = Confession::where('user_id', $user->id)->first();
-        $this->assertNotNull($confession->guest_token);
+        $this->assertNotNull($confession, 'Confession record should exist');
+
+        // token generated and has expected length
+        $this->assertIsString($confession->guest_token);
+        $this->assertEquals(64, strlen($confession->guest_token));
+
+        // IP is stored
+        $this->assertEquals('203.0.113.5', $confession->ip_address);
+
+        // message saved
+        $this->assertEquals('Halo, ini pesan rahasia pertamaku!', $confession->message);
     }
 
     /** @test */
-    public function guest_can_reply_in_chat_room()
+    public function test_guest_can_access_guest_chat_room_view()
     {
-        // 1. Setup: Buat User dan Confession yang sudah ada
+        $user = User::factory()->create();
+        $confession = Confession::create([
+            'user_id' => $user->id,
+            'message' => 'Test message',
+            'guest_token' => Str::random(64),
+        ]);
+
+        $response = $this->get(route('chat.guest', ['token' => $confession->guest_token]));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('confession', function ($viewConfession) use ($confession) {
+            return $viewConfession->id === $confession->id;
+        });
+    }
+
+    /** @test */
+    public function test_guest_can_reply_in_chat_room()
+    {
         $user = User::factory()->create();
         $confession = Confession::create([
             'user_id' => $user->id,
@@ -64,68 +79,94 @@ class ConfessionFlowTest extends TestCase
             'ip_address' => '127.0.0.1'
         ]);
 
-        // 2. Guest membalas chat (ChatController@guestReply)
-        // Asumsi route kamu: POST /chat/{token}/reply
-        // Sesuaikan URL ini dengan routes/web.php kamu!
-        $response = $this->post("/c/{$confession->guest_token}/reply", [
+        $response = $this->post(route('chat.guest.reply', ['token' => $confession->guest_token]), [
             'message' => 'Ini balasan dari Guest',
         ]);
 
-        // 3. Cek Database Chats
+        $response->assertRedirect();
+
         $this->assertDatabaseHas('chats', [
             'confession_id' => $confession->id,
-            'sender_type' => 'guest', //
+            'sender_type' => 'guest',
             'message' => 'Ini balasan dari Guest',
+            'is_read' => false,
         ]);
-
-        $response->assertRedirect(); // Controller me-return back()
     }
 
     /** @test */
-    public function logged_in_user_can_reply_to_confession()
+    public function test_logged_in_user_can_reply_to_confession_and_owner_reply_is_marked_read()
     {
-        // Tambahkan baris ini biar error merahnya hilang
-        /** @var \App\Models\User $user */
+        // Create the owner and a confession for them
         $user = User::factory()->create();
-
         $confession = Confession::create([
             'user_id' => $user->id,
             'message' => 'Pesan masuk',
             'guest_token' => Str::random(64),
+            'is_read' => false,
         ]);
 
-        // Sekarang actingAs tidak akan error lagi
+        /** @var \App\Models\User $user */
         $this->actingAs($user);
 
-        // ... kode selanjutnya ...
+        $response = $this->post(route('chat.reply', ['id' => $confession->id]), [
+            'message' => 'Balasan dari pemilik',
+        ]);
+
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('chats', [
+            'confession_id' => $confession->id,
+            'sender_type' => 'user',
+            'message' => 'Balasan dari pemilik',
+            'is_read' => true,
+        ]);
+
+        // The owner's view marks confession as read
+        $this->get(route('chat.show', ['id' => $confession->id]));
+        $this->assertDatabaseHas('confessions', [
+            'id' => $confession->id,
+            'is_read' => true,
+        ]);
     }
 
     /** @test */
-    public function user_cannot_read_others_confession()
+    public function test_messages_index_lists_confessions_for_authenticated_user()
     {
-        // 1. Setup: Dua User berbeda
-        /** @var \App\Models\User $userA */
+        $user = User::factory()->create();
+
+        // Create some confessions belonging to this user and others
+        Confession::factory()->count(2)->create(['user_id' => $user->id]);
+        Confession::factory()->count(1)->create(); // other user
+
+        /** @var \App\Models\User $user */
+        $this->actingAs($user);
+
+        $response = $this->get(route('messages.index'));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('confessions');
+
+        $confessions = $response->viewData('confessions');
+        $this->assertCount(2, $confessions);
+    }
+
+    /** @test */
+    public function test_user_cannot_read_others_confession()
+    {
         $userA = User::factory()->create();
-        
-        /** @var \App\Models\User $userB */
         $userB = User::factory()->create();
 
-        // 2. Pesan ini milik User A
         $confession = Confession::create([
             'user_id' => $userA->id,
             'message' => 'Rahasia User A',
             'guest_token' => Str::random(64),
         ]);
 
-        // 3. Login sebagai User B (Orang lain)
+        /** @var \App\Models\User $userB */
         $this->actingAs($userB);
 
-        // 4. Coba akses halaman chat User A (ChatController@show)
-        // Asumsi route kamu: GET /dashboard/chat/{id}
-        $response = $this->get("/dashboard/chat/{$confession->id}");
+        $response = $this->get(route('chat.show', ['id' => $confession->id]));
 
-        // 5. Harusnya Ditolak (403 Forbidden)
-        // Karena di Controller ada: if ($confession->user_id != Auth::id()) abort(403);
-        $response->assertStatus(403); //
+        $response->assertStatus(403);
     }
 }

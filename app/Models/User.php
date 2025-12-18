@@ -13,7 +13,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
-        'username', // Pastikan kolom ini ada
+        'username',
         'email',
         'password',
     ];

@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 class AuthTest extends TestCase
 {
-    // Trait ini wajib! Agar database di-reset bersih setiap kali test jalan
+    // Agar database di-reset bersih setiap kali test jalan
     use RefreshDatabase;
 
     /**
@@ -77,7 +77,7 @@ class AuthTest extends TestCase
             'password' => 'password-salah',
         ]);
 
-        $this->assertGuest(); // Pastikan user statusnya masih tamu (belum login)
+        $this->assertGuest(); // Memastikan user statusnya masih tamu (belum login)
     }
 
     /**
@@ -89,7 +89,6 @@ class AuthTest extends TestCase
         /** @var \App\Models\User $user */
         $user = User::factory()->create();
 
-        // Sekarang errornya harusnya hilang
         $this->actingAs($user); 
 
         $response = $this->post('/logout');

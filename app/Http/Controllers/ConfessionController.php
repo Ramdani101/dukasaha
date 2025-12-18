@@ -6,14 +6,35 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Confession;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str; // Penting untuk generate token acak
+use Illuminate\Support\Str;
 
+/**
+ * Controller responsible for creating and managing confessions.
+ *
+ * Responsibilities:
+ *  - Show the public confession form for a specific user
+ *  - Persist confessions submitted by guests
+ *  - Provide an inbox for users (authenticated) to see received confessions
+ *  - Show a single confession and mark it as read when the owner views it
+ *
+ * Notes:
+ *  - Public confessions use a `guest_token` so guests can later access and
+ *    continue the conversation without authentication.
+ *  - Consider adding notifications or events when a new confession is created
+ *    so the recipient can be notified (email, in-app notification, etc.).
+ */
 class ConfessionController extends Controller
 {
     /**
-     * Menampilkan halaman formulir pesan untuk user tertentu.
-     * URL: /u/{username}
+     * Show the form that lets a guest write a confession for a given user.
+     *
+     * Route example: GET `/u/{username}`
+     *
+     * @param string $username The target user's username
+     * @return \Illuminate\View\View
      */
+    //Menampilkan halaman formulir pesan untuk user tertentu.
+    // URL: /u/{username}
     public function create($username)
     {
         // Cari user berdasarkan username, jika tidak ada tampilkan 404
@@ -23,9 +44,19 @@ class ConfessionController extends Controller
     }
 
     /**
-     * Menyimpan pesan ke database.
-     * URL: /confess (POST)
+     * Persist a new confession to the database.
+     *
+     * Validates message content and that the target username exists. Generates a
+     * secure guest token (used to access the chat as a guest) and stores the
+     * sender's IP address for safety/audit purposes.
+     *
+     * Route example: POST `/confess`
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
      */
+    // Menyimpan pesan ke database.
+    // URL: /confess (POST)
     public function store(Request $request)
     {
         // 1. Validasi
@@ -49,6 +80,8 @@ class ConfessionController extends Controller
             'ip_address'  => $request->ip(), // Fitur safety
         ]);
 
+        // NOTE: You may want to dispatch an event here to notify the recipient.
+        // event(new \App\Events\ConfessionCreated($confession));
 
         // 5. Redirect Guest langsung ke Chat Room mereka
         // Guest akan otomatis melihat pesan yang baru mereka kirim di room tersebut
@@ -56,22 +89,35 @@ class ConfessionController extends Controller
     }
 
     /**
-     * Menampilkan Inbox User (Login Required)
-     * (Akan kita buat nanti di Fase 2)
+     * Display the inbox for the authenticated user (list of confessions).
+     *
+     * Loads related chats to facilitate unread counts and sorts by newest first.
+     *
+     * @return \Illuminate\View\View
      */
+    //Menampilkan Inbox User (Login Required)
     public function index()
     {
         // Ambil semua pesan milik user yang sedang login
         // Urutkan dari yang terbaru (latest)
         $confessions = Confession::where('user_id', Auth::id())
-                        ->with('chats') // Load relasi chat untuk menghitung unread (opsional)
+                        ->with('chats') // Load relasi chat untuk menghitung unread
                         ->latest()
                         ->get();
 
-        // Return ke view message.blade.php
+        // Return ke view inbox.blade.php
         return view('dashboard.inbox', compact('confessions'));
     }
 
+    /**
+     * Show a single confession to its owner and mark it as read.
+     *
+     * Security: the authenticated user must be the owner of the confession, or
+     * a 403 will be returned. When first viewed, `is_read` is set to true.
+     *
+     * @param int $id Confession ID
+     * @return \Illuminate\View\View
+     */
     public function show($id)
     {
         // 1. Cari pesan
