@@ -54,7 +54,7 @@
 
         </nav>
 
-        <!-- Mobile nav: simple toggle -->
+        <!-- Mobile nav: -->
         <div class="md:hidden relative z-10 flex items-center justify-between px-4 pt-3">
             <a href="{{ route('landing') }}" class="hover:scale-105 transition-transform duration-300">
                 <img src="{{ asset('image/logo_dukasaha.png') }}" alt="Dukasaha Logo" class="h-12 object-contain">

@@ -9,7 +9,6 @@
 </head>
 <body class="bg-[#FEF3E2] min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8">
 
-    <!-- Container: responsive padding and max widths for mobile/tablet/desktop -->
     <div class="bg-white rounded-lg sm:rounded-[30px] shadow-xl p-6 sm:p-8 w-full max-w-md sm:max-w-lg border border-orange-100 mx-3 sm:mx-0">
         <div class="text-center mb-4 sm:mb-6">
             <h1 class="font-montserrat font-bold text-lg sm:text-2xl text-[#FA812F]">Forgot Password?</h1>

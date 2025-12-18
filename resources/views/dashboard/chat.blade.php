@@ -10,7 +10,6 @@
     <style>
         body { font-family: 'Poppins', sans-serif; }
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
-        /* Hilangkan scrollbar tapi tetap bisa scroll */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none;  scrollbar-width: none; }
     </style>
@@ -134,7 +133,7 @@
     </script>
 
     <script>
-        // Mobile menu toggle (no external dependency)
+        // Mobile menu toggle
         document.addEventListener('DOMContentLoaded', function () {
             const btn = document.getElementById('menu-toggle');
             const menu = document.getElementById('mobile-menu');
