@@ -16,24 +16,24 @@
 </head>
 <body class="bg-[#FFF8E7] flex flex-col min-h-screen">
 
-    <header class="bg-gradient-to-r from-[#FA812F] to-[#FAB12F] h-10 w-full flex items-center justify-between px-6 md:px-12 relative shadow-sm">
+    <header class="bg-gradient-to-r from-[#FA812F] to-[#FAB12F] h-12 sm:h-14 w-full flex items-center justify-between px-4 sm:px-6 md:px-12 relative shadow-sm">
         
         <a href="{{ route('dashboard') }}" class="flex-shrink-0 flex items-center h-full">
             <img src="{{ asset('image/logo_dukasaha.png') }}" 
                 alt="Dukasaha Logo" 
-                class="h-10 md:h-20 w-auto object-contain"> 
+                class="h-8 sm:h-10 md:h-20 w-auto object-contain"> 
         </a>
 
         <div class="absolute left-1/2 transform -translate-x-1/2">
-            <span class="text-white font-light text-xl md:text-2xl font-poppins">chat</span>
+            <span class="text-white font-light text-lg sm:text-xl md:text-2xl font-poppins">chat</span>
         </div>
     </header>
 
-    <main class="flex-grow flex flex-col items-center w-full max-w-4xl mx-auto px-4 pt-8 pb-4 relative">
+    <main class="flex-grow flex flex-col items-center w-full max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-4 relative">
 
         <div class="w-full max-w-3xl mx-auto mb-5">
-            <div class="w-full bg-gradient-to-r from-[#FA812F] to-[#DD0303] rounded-[30px] p-6 md:p-8 shadow-xl text-white relative transform transition-transform hover:scale-[1.01]">
-                <p class="font-bold text-xl md:text-2xl leading-relaxed text-center font-montserrat drop-shadow-sm">
+            <div class="w-full bg-gradient-to-r from-[#FA812F] to-[#DD0303] rounded-lg sm:rounded-[30px] p-4 sm:p-6 md:p-8 shadow-xl text-white relative transform transition-transform hover:scale-[1.01]">
+                <p class="font-bold text-lg sm:text-xl md:text-2xl leading-relaxed text-center font-montserrat drop-shadow-sm">
                     {{ $confession->message }}
                 </p>
             </div>
@@ -45,24 +45,24 @@
                 {{-- LOGIKA: 'guest' = Saya (Kanan), 'user' = Pemilik Akun (Kiri) --}}
                 
                 @if($chat->sender_type == 'guest')
-                    <div class="flex justify-end w-full">
-                        <div class="max-w-[85%] md:max-w-[70%] flex flex-col items-end">
-                            <div class="bg-[#FF9F43] text-white px-5 py-3 rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl shadow-md">
-                                <p class="text-sm md:text-base leading-snug">{{ $chat->message }}</p>
+                    <div class="flex justify-end w-full px-2">
+                        <div class="max-w-[90%] sm:max-w-[85%] md:max-w-[70%] flex flex-col items-end">
+                            <div class="bg-[#FF9F43] text-white px-4 py-3 rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl shadow-md">
+                                <p class="text-sm sm:text-base md:text-base leading-snug">{{ $chat->message }}</p>
                             </div>
-                            <span class="text-[10px] text-gray-400 mt-1 mr-1">
+                            <span class="text-[11px] text-gray-400 mt-1 mr-1">
                                 {{ $chat->created_at->timezone('Asia/Jakarta')->format('H:i') }}
                             </span>
                         </div>
                     </div>
 
                 @else
-                    <div class="flex justify-start w-full">
-                        <div class="max-w-[85%] md:max-w-[70%] flex flex-col items-start">
-                            <div class="bg-white text-gray-700 px-5 py-3 rounded-tl-2xl rounded-tr-2xl rounded-br-2xl shadow-sm border border-gray-100">
-                                <p class="text-sm md:text-base leading-snug">{{ $chat->message }}</p>
+                    <div class="flex justify-start w-full px-2">
+                        <div class="max-w-[90%] sm:max-w-[85%] md:max-w-[70%] flex flex-col items-start">
+                            <div class="bg-white text-gray-700 px-4 py-3 rounded-tl-2xl rounded-tr-2xl rounded-br-2xl shadow-sm border border-gray-100">
+                                <p class="text-sm sm:text-base md:text-base leading-snug">{{ $chat->message }}</p>
                             </div>
-                            <span class="text-[10px] text-gray-400 mt-1 ml-1">
+                            <span class="text-[11px] text-gray-400 mt-1 ml-1">
                                 {{ $chat->created_at->timezone('Asia/Jakarta')->format('H:i') }}
                             </span>
                         </div>
@@ -75,19 +75,20 @@
 
         </div>
 
-        <div class="w-full max-w-2xl mx-auto mt-auto mb-6 sticky bottom-4 z-10">
+        <div class="w-full max-w-2xl mx-auto mt-auto mb-6 sticky bottom-4 z-10 px-2 sm:px-0">
             <form action="{{ route('chat.guest.reply', $confession->guest_token) }}" method="POST" class="relative flex items-center">
                 @csrf
                 
                 <input type="text" 
                        name="message" 
+                       aria-label="Reply message"
                        placeholder="Type here..." 
                        required
                        autocomplete="off"
-                       class="w-full bg-white border border-gray-200 text-gray-700 rounded-full pl-6 pr-14 py-3 md:py-4 focus:outline-none focus:ring-2 focus:ring-[#FF9F43] shadow-lg transition-all">
+                       class="w-full bg-white border border-gray-200 text-gray-700 rounded-full pl-4 sm:pl-6 pr-14 py-3 sm:py-4 focus:outline-none focus:ring-2 focus:ring-[#FF9F43] shadow-lg transition-all">
 
-                <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2  rounded-full transition-all hover:scale-105">
-                    <img src="{{ asset('image/send.png') }}" alt="Send" class="h-5 w-5 md:h-6 md:w-6"> 
+                <button type="submit" class="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 p-3 sm:p-3 rounded-full bg-[#FF9F43] text-white transition-all hover:scale-105">
+                    <img src="{{ asset('image/send.png') }}" alt="Send" class="h-5 w-5 sm:h-6 sm:w-6"> 
                 </button>
             </form>
         </div>

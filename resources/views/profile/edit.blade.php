@@ -23,10 +23,28 @@
             <span class="text-white font-light text-xl md:text-2xl font-poppins">setting</span>
         </div>
 
-        <a href="{{ route('profile.edit') }}" class="flex-shrink-0 group">
+        <!-- Desktop profile link -->
+        <a href="{{ route('profile.edit') }}" class="hidden md:block flex-shrink-0 group">
             <img src="{{ asset('image/user-logo.svg') }}" alt="User Profile" class="h-8 md:h-9 w-8 md:w-9 object-contain group-hover:scale-110 transition-transform duration-300">
         </a>
+
+        <!-- Mobile menu toggle -->
+        <button id="menu-toggle" aria-controls="mobile-menu" aria-expanded="false" class="md:hidden p-2 rounded-md bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-white" aria-label="Open menu">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
     </header>
+
+    <div id="mobile-menu" class="hidden md:hidden bg-transparent z-20 px-4">
+        <div class="mt-2 bg-white/5 rounded-lg py-2 px-3 flex flex-col space-y-2">
+            <a href="{{ route('dashboard') }}" class="text-white font-semibold px-2 py-2 rounded hover:bg-white/10">Dashboard</a>
+            <a href="{{ route('messages.index') }}" class="text-white font-semibold px-2 py-2 rounded hover:bg-white/10">Messages</a>
+            <a href="{{ route('profile.edit') }}" class="text-white font-semibold px-2 py-2 rounded hover:bg-white/10">Settings</a>
+            <form method="POST" action="{{ route('logout') }}" class="px-2">
+                @csrf
+                <button type="submit" class="w-full text-left text-white font-semibold py-2 rounded hover:bg-white/10">Log out</button>
+            </form>
+        </div>
+    </div>
 
     <main class="flex-grow flex flex-col items-center pt-10 px-4 space-y-8">
         
@@ -189,6 +207,21 @@
         @if($errors->userDeletion->any())
             openModal('deleteModal');
         @endif
+    </script>
+
+    <script>
+        // Mobile menu toggle (no external dependency)
+        document.addEventListener('DOMContentLoaded', function () {
+            const btn = document.getElementById('menu-toggle');
+            const menu = document.getElementById('mobile-menu');
+            if (!btn || !menu) return;
+
+            btn.addEventListener('click', function () {
+                const expanded = btn.getAttribute('aria-expanded') === 'true';
+                btn.setAttribute('aria-expanded', String(!expanded));
+                menu.classList.toggle('hidden');
+            });
+        });
     </script>
 
 </body>

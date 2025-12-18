@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/image/logo_dukasaha.png" alt="dukasaha logo" width="200" />
+</p>
+
 # Dukasaha (dukasaha)
 
 A lightweight anonymous messaging / confession platform built with Laravel.

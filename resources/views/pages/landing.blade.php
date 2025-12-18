@@ -34,7 +34,8 @@
     <header class="relative w-full">
         <div class="bg-[#FAB12F] h-24 w-full curve-header absolute top-0 z-0"></div>
         
-        <nav class="relative z-10 flex justify-center space-x-10 pt-4">
+        <!-- Desktop nav -->
+        <nav class="hidden md:flex relative z-10 justify-center space-x-10 pt-4" aria-label="Primary">
     
             <a href="{{ route('about') }}" class="relative text-white font-bold text-lg group">
                 About
@@ -53,9 +54,28 @@
 
         </nav>
 
-        <div class="relative z-10 flex justify-center mt-13">
+        <!-- Mobile nav: simple toggle -->
+        <div class="md:hidden relative z-10 flex items-center justify-between px-4 pt-3">
             <a href="{{ route('landing') }}" class="hover:scale-105 transition-transform duration-300">
-            <img src="{{ asset('image/logo_dukasaha.png') }}" alt="Dukasaha Logo" class="h-16 object-contain">
+                <img src="{{ asset('image/logo_dukasaha.png') }}" alt="Dukasaha Logo" class="h-12 object-contain">
+            </a>
+
+            <button id="menu-toggle" aria-controls="mobile-menu" aria-expanded="false" class="p-2 rounded-md bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-white" aria-label="Open menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden bg-transparent z-20 px-4">
+            <div class="mt-2 bg-white/5 rounded-lg py-2 px-3 flex flex-col space-y-2">
+                <a href="{{ route('about') }}" class="text-white font-semibold px-2 py-2 rounded hover:bg-white/10">About</a>
+                <a href="{{ route('safety') }}" class="text-white font-semibold px-2 py-2 rounded hover:bg-white/10">Safety</a>
+                <a href="mailto:ramdani@dukasaha.com?subject=Halo%20Admin%20Dukasaha" class="text-white font-semibold px-2 py-2 rounded hover:bg-white/10">Contact Us</a>
+            </div>
+        </div>
+
+        <div class="relative z-10 flex justify-center mt-6 md:mt-13">
+            <a href="{{ route('landing') }}" class="hover:scale-105 transition-transform duration-300">
+            <img src="{{ asset('image/logo_dukasaha.png') }}" alt="Dukasaha Logo" class="hidden md:block h-16 object-contain">
             </a>
         </div>
     </header>
@@ -198,5 +218,20 @@
         }
 
         </style>
+
+    <script>
+        // Simple mobile menu toggle without any library
+        document.addEventListener('DOMContentLoaded', function () {
+            const btn = document.getElementById('menu-toggle');
+            const menu = document.getElementById('mobile-menu');
+            if (!btn || !menu) return;
+
+            btn.addEventListener('click', function () {
+                const expanded = btn.getAttribute('aria-expanded') === 'true';
+                btn.setAttribute('aria-expanded', String(!expanded));
+                menu.classList.toggle('hidden');
+            });
+        });
+    </script>
 </body>
 </html>
